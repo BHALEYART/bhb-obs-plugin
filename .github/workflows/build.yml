@@ -102,6 +102,40 @@ jobs:
           open('build/icon.png','wb').write(sig+ihdr+idat+iend)
           "
 
+      - name: Generate ICO icon
+        run: |
+          python3 -c "
+          import struct, zlib
+
+          def png_bytes(size):
+              def chunk(name, data):
+                  c = zlib.crc32(name + data) & 0xffffffff
+                  return struct.pack('>I', len(data)) + name + data + struct.pack('>I', c)
+              W = H = size
+              sig  = b'\x89PNG\r\n\x1a\n'
+              ihdr = chunk(b'IHDR', struct.pack('>IIBBBBB', W, H, 8, 2, 0, 0, 0))
+              raw  = b''.join(b'\x00' + b'\x0d\x0d\x0d' * W for _ in range(H))
+              idat = chunk(b'IDAT', zlib.compress(raw))
+              iend = chunk(b'IEND', b'')
+              return sig + ihdr + idat + iend
+
+          sizes = [16, 32, 48, 256]
+          images = [png_bytes(s) for s in sizes]
+          num = len(sizes)
+          header = struct.pack('<HHH', 0, 1, num)
+          offset = 6 + num * 16
+          entries = b''
+          for i, s in enumerate(sizes):
+              data = images[i]
+              w = 0 if s == 256 else s
+              h = 0 if s == 256 else s
+              entries += struct.pack('<BBBBHHII', w, h, 0, 0, 1, 32, len(data), offset)
+              offset += len(data)
+          with open('build/icon.ico', 'wb') as f:
+              f.write(header + entries + b''.join(images))
+          print('icon.ico written')
+          "
+
       - name: Generate license
         run: |
           echo "BHB Live - Big Head Billionaires OBS Plugin" > build/license.txt
