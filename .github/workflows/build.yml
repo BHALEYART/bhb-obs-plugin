@@ -1,0 +1,118 @@
+name: Build Installers
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # lets you trigger a build manually from GitHub's website
+
+jobs:
+
+  # ── Mac build → produces .dmg ─────────────────────────────────
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate icon
+        run: |
+          python3 -c "
+          import struct, zlib
+          def chunk(name, data):
+              c = zlib.crc32(name + data) & 0xffffffff
+              return struct.pack('>I', len(data)) + name + data + struct.pack('>I', c)
+          W = H = 1024
+          sig  = b'\x89PNG\r\n\x1a\n'
+          ihdr = chunk(b'IHDR', struct.pack('>IIBBBBB', W, H, 8, 2, 0, 0, 0))
+          raw  = b''.join(b'\x00' + b'\x0d\x0d\x0d' * W for _ in range(H))
+          idat = chunk(b'IDAT', zlib.compress(raw))
+          iend = chunk(b'IEND', b'')
+          open('build/icon.png','wb').write(sig+ihdr+idat+iend)
+          "
+
+      - name: Generate DMG background
+        run: |
+          python3 -c "
+          import struct, zlib
+          def chunk(name, data):
+              c = zlib.crc32(name + data) & 0xffffffff
+              return struct.pack('>I', len(data)) + name + data + struct.pack('>I', c)
+          W, H = 540, 360
+          sig  = b'\x89PNG\r\n\x1a\n'
+          ihdr = chunk(b'IHDR', struct.pack('>IIBBBBB', W, H, 8, 2, 0, 0, 0))
+          raw  = b''.join(b'\x00' + b'\x0d\x0d\x0d' * W for _ in range(H))
+          idat = chunk(b'IDAT', zlib.compress(raw))
+          iend = chunk(b'IEND', b'')
+          open('build/dmg-bg.png','wb').write(sig+ihdr+idat+iend)
+          "
+
+      - name: Generate license
+        run: |
+          echo "BHB Live — Big Head Billionaires OBS Plugin" > build/license.txt
+          echo "Copyright (c) 2025 Big Head Billionaires. All rights reserved." >> build/license.txt
+
+      - name: Build Mac DMG
+        run: npx electron-builder --mac --universal
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: BHB-Live-Mac
+          path: dist/*.dmg
+          retention-days: 30
+
+  # ── Windows build → produces .exe ─────────────────────────────
+  build-win:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate icon
+        run: |
+          python3 -c "
+          import struct, zlib
+          def chunk(name, data):
+              c = zlib.crc32(name + data) & 0xffffffff
+              return struct.pack('>I', len(data)) + name + data + struct.pack('>I', c)
+          W = H = 1024
+          sig  = b'\x89PNG\r\n\x1a\n'
+          ihdr = chunk(b'IHDR', struct.pack('>IIBBBBB', W, H, 8, 2, 0, 0, 0))
+          raw  = b''.join(b'\x00' + b'\x0d\x0d\x0d' * W for _ in range(H))
+          idat = chunk(b'IDAT', zlib.compress(raw))
+          iend = chunk(b'IEND', b'')
+          open('build/icon.png','wb').write(sig+ihdr+idat+iend)
+          "
+
+      - name: Generate license
+        run: |
+          echo "BHB Live - Big Head Billionaires OBS Plugin" > build/license.txt
+          echo "Copyright (c) 2025 Big Head Billionaires. All rights reserved." >> build/license.txt
+
+      - name: Build Windows EXE
+        run: npx electron-builder --win --x64
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: BHB-Live-Windows
+          path: dist/*.exe
+          retention-days: 30

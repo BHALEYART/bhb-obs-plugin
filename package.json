@@ -1,0 +1,98 @@
+{
+  "name": "bhb-obs-plugin",
+  "version": "1.0.0",
+  "description": "Big Head Billionaires — Live Avatar for OBS (VTube Studio-style)",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "gen-icon": "node scripts/gen-icon.js",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win --x64",
+    "build:mac": "electron-builder --mac",
+    "build:mac:arm": "electron-builder --mac --arm64",
+    "build:mac:x64": "electron-builder --mac --x64",
+    "build:mac:universal": "electron-builder --mac --universal",
+    "build:linux": "electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.bigheadbillionaires.obs-live",
+    "productName": "BHB Live",
+    "copyright": "Copyright © 2025 Big Head Billionaires",
+
+    "files": [
+      "main.js",
+      "preload.js",
+      "control.html",
+      "live.html"
+    ],
+
+    "icon": "build/icon",
+
+    "directories": {
+      "output":    "dist",
+      "buildResources": "build"
+    },
+
+    "mac": {
+      "target": [
+        { "target": "dmg",  "arch": ["universal"] },
+        { "target": "zip",  "arch": ["universal"] }
+      ],
+      "category": "public.app-category.entertainment",
+      "entitlements":        "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "hardenedRuntime":     true,
+      "gatekeeperAssess":    false,
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "BHB Live uses your microphone for real-time lip sync."
+      }
+    },
+
+    "dmg": {
+      "title":       "${productName} ${version}",
+      "background":  "build/dmg-bg.png",
+      "window":      { "width": 540, "height": 360 },
+      "contents": [
+        { "x": 130, "y": 220 },
+        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+      ],
+      "internetEnabled": false
+    },
+
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] }
+      ],
+      "requestedExecutionLevel": "asInvoker"
+    },
+
+    "nsis": {
+      "oneClick":           false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon":      "build/icon.ico",
+      "uninstallerIcon":    "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName":       "BHB Live",
+      "license":            "build/license.txt"
+    },
+
+    "linux": {
+      "target": ["AppImage"],
+      "category": "AudioVideo"
+    },
+
+    "publish": null
+  },
+
+  "devDependencies": {
+    "electron":         "^28.3.3",
+    "electron-builder": "^24.13.3"
+  },
+
+  "optionalDependencies": {
+    "canvas": "^2.11.2"
+  }
+}
+
