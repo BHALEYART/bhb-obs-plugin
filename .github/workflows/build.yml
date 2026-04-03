@@ -1,0 +1,161 @@
+name: Build Installers
+
+on:
+  push:
+    branches: [ main ]
+    tags:     [ 'v*' ]       # v1.3.0, v2.0.0, etc — triggers auto-release
+  workflow_dispatch:
+
+jobs:
+
+  # ── Mac build → .dmg ─────────────────────────────────────────
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate icon
+        run: |
+          python3 -c "
+          import struct, zlib
+          def chunk(name, data):
+              c = zlib.crc32(name + data) & 0xffffffff
+              return struct.pack('>I', len(data)) + name + data + struct.pack('>I', c)
+          W = H = 1024
+          sig  = b'\x89PNG\r\n\x1a\n'
+          ihdr = chunk(b'IHDR', struct.pack('>IIBBBBB', W, H, 8, 2, 0, 0, 0))
+          raw  = b''.join(b'\x00' + b'\x0d\x0d\x0d' * W for _ in range(H))
+          idat = chunk(b'IDAT', zlib.compress(raw))
+          iend = chunk(b'IEND', b'')
+          open('build/icon.png','wb').write(sig+ihdr+idat+iend)
+          "
+
+      - name: Generate DMG background
+        run: |
+          python3 -c "
+          import struct, zlib
+          def chunk(name, data):
+              c = zlib.crc32(name + data) & 0xffffffff
+              return struct.pack('>I', len(data)) + name + data + struct.pack('>I', c)
+          W, H = 540, 360
+          sig  = b'\x89PNG\r\n\x1a\n'
+          ihdr = chunk(b'IHDR', struct.pack('>IIBBBBB', W, H, 8, 2, 0, 0, 0))
+          raw  = b''.join(b'\x00' + b'\x0d\x0d\x0d' * W for _ in range(H))
+          idat = chunk(b'IDAT', zlib.compress(raw))
+          iend = chunk(b'IEND', b'')
+          open('build/dmg-bg.png','wb').write(sig+ihdr+idat+iend)
+          "
+
+      - name: Generate license
+        run: |
+          echo "BHB Live — Big Head Billionaires OBS Plugin" > build/license.txt
+          echo "Copyright (c) 2025 Big Head Billionaires. All rights reserved." >> build/license.txt
+
+      - name: Build Mac DMG
+        env:
+          # GH_TOKEN lets electron-builder publish to GitHub Releases
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            npx electron-builder --mac --universal --publish always
+          else
+            npx electron-builder --mac --universal --publish never
+          fi
+
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BHB-Live-Mac
+          path: dist/*.dmg
+          retention-days: 30
+
+  # ── Windows build → .exe ─────────────────────────────────────
+  build-win:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate icon
+        run: |
+          python3 -c "
+          import struct, zlib
+          def chunk(name, data):
+              c = zlib.crc32(name + data) & 0xffffffff
+              return struct.pack('>I', len(data)) + name + data + struct.pack('>I', c)
+          W = H = 1024
+          sig  = b'\x89PNG\r\n\x1a\n'
+          ihdr = chunk(b'IHDR', struct.pack('>IIBBBBB', W, H, 8, 2, 0, 0, 0))
+          raw  = b''.join(b'\x00' + b'\x0d\x0d\x0d' * W for _ in range(H))
+          idat = chunk(b'IDAT', zlib.compress(raw))
+          iend = chunk(b'IEND', b'')
+          open('build/icon.png','wb').write(sig+ihdr+idat+iend)
+          "
+
+      - name: Generate ICO icon
+        run: |
+          python3 -c "
+          import struct, zlib
+          def png_bytes(size):
+              def chunk(name, data):
+                  c = zlib.crc32(name + data) & 0xffffffff
+                  return struct.pack('>I', len(data)) + name + data + struct.pack('>I', c)
+              W = H = size
+              sig  = b'\x89PNG\r\n\x1a\n'
+              ihdr = chunk(b'IHDR', struct.pack('>IIBBBBB', W, H, 8, 2, 0, 0, 0))
+              raw  = b''.join(b'\x00' + b'\x0d\x0d\x0d' * W for _ in range(H))
+              idat = chunk(b'IDAT', zlib.compress(raw))
+              iend = chunk(b'IEND', b'')
+              return sig + ihdr + idat + iend
+          sizes = [16, 32, 48, 256]
+          images = [png_bytes(s) for s in sizes]
+          num = len(sizes)
+          header = struct.pack('<HHH', 0, 1, num)
+          offset = 6 + num * 16
+          entries = b''
+          for i, s in enumerate(sizes):
+              data = images[i]
+              w = 0 if s == 256 else s
+              h = 0 if s == 256 else s
+              entries += struct.pack('<BBBBHHII', w, h, 0, 0, 1, 32, len(data), offset)
+              offset += len(data)
+          with open('build/icon.ico', 'wb') as f:
+              f.write(header + entries + b''.join(images))
+          "
+
+      - name: Generate license
+        run: |
+          echo "BHB Live - Big Head Billionaires OBS Plugin" > build/license.txt
+          echo "Copyright (c) 2025 Big Head Billionaires. All rights reserved." >> build/license.txt
+
+      - name: Build Windows EXE
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if ("${{ github.ref }}" -like "refs/tags/v*") {
+            npx electron-builder --win --x64 --publish always
+          } else {
+            npx electron-builder --win --x64 --publish never
+          }
+
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BHB-Live-Windows
+          path: dist/*.exe
+          retention-days: 30
