@@ -13,7 +13,7 @@
 
 const {
   app, BrowserWindow, ipcMain, globalShortcut,
-  session, protocol
+  session, protocol, systemPreferences
 } = require('electron');
 const path  = require('path');
 const fs    = require('fs');
@@ -286,7 +286,18 @@ function createLiveWindow(opts = {}) {
 }
 
 // ─── APP LIFECYCLE ────────────────────────────────────────────────────────────
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  // ── macOS: request microphone permission once at the system level ──────────
+  // This shows the native "BHB Live would like to access your microphone" dialog
+  // exactly once. All subsequent getUserMedia calls in renderer windows are
+  // silently granted — no repeated prompts per window or per call.
+  if (process.platform === 'darwin') {
+    const micStatus = systemPreferences.getMediaAccessStatus('microphone');
+    if (micStatus !== 'granted') {
+      await systemPreferences.askForMediaAccess('microphone');
+    }
+  }
+
   setupPermissions();
   registerAssetProtocol();
   createControlWindow();
