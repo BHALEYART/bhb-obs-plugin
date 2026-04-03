@@ -43,18 +43,45 @@ function buildAssetManifest() {
   const BG_FILES      = ['None.png','Natural.png','Mania.png','Regal.png','Lavish.png','Sunflower.png','Snowflake.png','Bleach.png','Vibes.png','Burst.png','Aquatic.png','Passionate.png','Envious.png','Enlightened.png','Haunted.png','Cursed.png','SolFlare.png','Tangerine.png','Navy.png','Crimson.png','Graphite.png','Eggshell.png','Slate.png','Kuwai.png','Velvet.png','Money.png','Sky.png'];
 
   const SUBSET_PATHS = [
+    // Alien
     'EYES/SUBSET/alien.png','EYES/SUBSET/alien-blink.png','EYES/SUBSET/alien-ouchy.png','EYES/SUBSET/alien-infuriated.png','EYES/SUBSET/alien-surprised.png','EYES/SUBSET/alien-stern.png','EYES/SUBSET/alien-joy.png','EYES/SUBSET/alien-curious.png',
-    'EYES/SUBSET/demonic.png','EYES/SUBSET/demonic-blink.png','EYES/SUBSET/demonic-ouchy.png','EYES/SUBSET/demonic-infuriated.png','EYES/SUBSET/demonic-surprised.png','EYES/SUBSET/demonic-stern.png','EYES/SUBSET/demonic-joy.png','EYES/SUBSET/demonic-curious.png',
+    // Sunglasses
+    'EYES/SUBSET/sunglasses.png','EYES/SUBSET/sunglasses-blink.png','EYES/SUBSET/sunglasses-ouchy.png','EYES/SUBSET/sunglasses-infuriated.png','EYES/SUBSET/sunglasses-surprised.png','EYES/SUBSET/sunglasses-stern.png','EYES/SUBSET/sunglasses-joy.png','EYES/SUBSET/sunglasses-curious.png',
+    // 3D Glasses
+    'EYES/SUBSET/3dglasses.png','EYES/SUBSET/3dglasses-blink.png','EYES/SUBSET/3dglasses-ouchy.png','EYES/SUBSET/3dglasses-infuriated.png','EYES/SUBSET/3dglasses-surprised.png','EYES/SUBSET/3dglasses-stern.png','EYES/SUBSET/3dglasses-joy.png','EYES/SUBSET/3dglasses-curious.png',
+    // Spider
+    'EYES/SUBSET/spider.png','EYES/SUBSET/spider-blink.png','EYES/SUBSET/spider-ouchy.png','EYES/SUBSET/spider-infuriated.png','EYES/SUBSET/spider-surprised.png','EYES/SUBSET/spider-stern.png','EYES/SUBSET/spider-joy.png','EYES/SUBSET/spider-curious.png',
+    // Diamond
     'EYES/SUBSET/diamond.png','EYES/SUBSET/diamond-blink.png','EYES/SUBSET/diamond-ouchy.png','EYES/SUBSET/diamond-infuriated.png','EYES/SUBSET/diamond-surprised.png','EYES/SUBSET/diamond-stern.png','EYES/SUBSET/diamond-joy.png','EYES/SUBSET/diamond-curious.png',
+    // Ruby Stare
+    'EYES/SUBSET/ruby.png','EYES/SUBSET/ruby-blink.png','EYES/SUBSET/ruby-ouchy.png','EYES/SUBSET/ruby-infuriated.png','EYES/SUBSET/ruby-surprised.png','EYES/SUBSET/ruby-stern.png','EYES/SUBSET/ruby-joy.png','EYES/SUBSET/ruby-curious.png',
+    // Hypnotized
+    'EYES/SUBSET/hypnotized.png','EYES/SUBSET/hypnotized-blink.png','EYES/SUBSET/hypnotized-ouchy.png','EYES/SUBSET/hypnotized-infuriated.png','EYES/SUBSET/hypnotized-surprised.png','EYES/SUBSET/hypnotized-stern.png','EYES/SUBSET/hypnotized-joy.png','EYES/SUBSET/hypnotized-curious.png',
+    // Monocle
+    'EYES/SUBSET/monocle.png','EYES/SUBSET/monocle-blink.png','EYES/SUBSET/monocle-ouchy.png','EYES/SUBSET/monocle-infuriated.png','EYES/SUBSET/monocle-surprised.png','EYES/SUBSET/monocle-stern.png','EYES/SUBSET/monocle-joy.png','EYES/SUBSET/monocle-curious.png',
+    // Demonic
+    'EYES/SUBSET/demonic.png','EYES/SUBSET/demonic-blink.png','EYES/SUBSET/demonic-ouchy.png','EYES/SUBSET/demonic-infuriated.png','EYES/SUBSET/demonic-surprised.png','EYES/SUBSET/demonic-stern.png','EYES/SUBSET/demonic-joy.png','EYES/SUBSET/demonic-curious.png',
+    // Light Bright
+    'EYES/SUBSET/lightbright.png','EYES/SUBSET/lightbright-blink.png','EYES/SUBSET/lightbright-ouchy.png','EYES/SUBSET/lightbright-infuriated.png','EYES/SUBSET/lightbright-surprised.png','EYES/SUBSET/lightbright-stern.png','EYES/SUBSET/lightbright-joy.png','EYES/SUBSET/lightbright-curious.png',
+    // Possessed
     'EYES/SUBSET/possesed.png','EYES/SUBSET/possesed-blink.png','EYES/SUBSET/possesed-ouchy.png','EYES/SUBSET/possesed-infuriated.png','EYES/SUBSET/possesed-surprised.png','EYES/SUBSET/possesed-stern.png','EYES/SUBSET/possesed-joy.png','EYES/SUBSET/possesed-curious.png',
+    // Dots
     'EYES/SUBSET/dots.png','EYES/SUBSET/dots-blink.png','EYES/SUBSET/dots-ouchy.png','EYES/SUBSET/dots-infuriated.png','EYES/SUBSET/dots-surprised.png','EYES/SUBSET/dots-stern.png','EYES/SUBSET/dots-joy.png','EYES/SUBSET/dots-curious.png',
+    // Stoney Eyes
     'EYES/SUBSET/stoneyeyes.png','EYES/SUBSET/stoneyeyes-blink.png','EYES/SUBSET/stoneyeyes-ouchy.png','EYES/SUBSET/stoneyeyes-infuriated.png','EYES/SUBSET/stoneyeyes-surprised.png','EYES/SUBSET/stoneyeyes-stern.png','EYES/SUBSET/stoneyeyes-joy.png','EYES/SUBSET/stoneyeyes-curious.png',
+    // VR Headset (all states same file)
     'EYES/SUBSET/vrheadset.png',
+    // Too Chill
     'EYES/SUBSET/toochill.png','EYES/SUBSET/toochill-blink.png',
+    // Deceased
     'EYES/SUBSET/deceased.png','EYES/SUBSET/deceased-blink.png','EYES/SUBSET/deceased-ouchy.png',
+    // Grumpy
     'EYES/SUBSET/grumpy.png','EYES/SUBSET/grumpy-ouchy.png',
+    // Paranoid
     'EYES/SUBSET/paranoid.png','EYES/SUBSET/paranoid-ouchy.png',
+    // Insect
     'EYES/SUBSET/insect.png','EYES/SUBSET/insect-ouchy.png',
+    // Annoyed
     'EYES/SUBSET/annoyed.png','EYES/SUBSET/annoyed-blink.png',
   ];
 
