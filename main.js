@@ -176,7 +176,7 @@ function assetsReady() {
   try {
     if (!fs.existsSync(MANIFEST_PATH)) return false;
     const m = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'));
-    return m.complete === true && m.version === 1;
+    return m.complete === true && m.version === 2;  // bump version → forces re-download for v1 users
   } catch (_) { return false; }
 }
 
@@ -276,7 +276,7 @@ ipcMain.handle('download-all-assets', async (event) => {
     fs.mkdirSync(ASSET_DIR, { recursive: true });
     fs.writeFileSync(MANIFEST_PATH, JSON.stringify({
       complete:     true,
-      version:      1,
+      version:      2,
       downloadedAt: new Date().toISOString(),
       total, failed,
     }));
